@@ -34,4 +34,4 @@ build/
 
 ### Custom ###
 *.checkstyle
-/src/main/resources/*.pem
+src/main/resources/*.pem
