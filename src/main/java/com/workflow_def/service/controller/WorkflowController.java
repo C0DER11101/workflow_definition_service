@@ -12,18 +12,13 @@ public class WorkflowController {
 
     WorkflowService workflowService;
 
-    /*
     @PostMapping(value = "/insert")
-    public void putData(@RequestBody WorkflowDTO wfDTO) {
+    public void insert(@RequestBody WorkflowDTO workflowDTO) {
     }
-     */
 
-    //@PostMapping(value = "/update/{wfcode}/{tenantId}")
-    @GetMapping(value = "/update/{wfcode}/{tenantId}")
-    public @ResponseBody AppResponseDTO updateData(@PathVariable("wfcode") String wfCode, @PathVariable("tenantId") String tenantId) {
-
-        return workflowService.processUpdateData(wfCode, tenantId);
-
+    @PostMapping(value = "/update")
+    public void update(@RequestBody WorkflowDTO wfDTO) {
+        workflowService.processUpdateData(wfDTO);
     }
 
 }

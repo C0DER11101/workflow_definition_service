@@ -11,6 +11,7 @@ import java.util.Date;
 public class WorkflowModel {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 

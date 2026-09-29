@@ -1,9 +1,10 @@
 package com.workflow_def.service.service;
 
 import com.workflow_def.service.dto.AppResponseDTO;
+import com.workflow_def.service.dto.WorkflowDTO;
 
 public interface WorkflowService {
 
-    AppResponseDTO processUpdateData(String wfCode, String tenantId);
+    AppResponseDTO processUpdateData(WorkflowDTO workflowDTO);
 
 }

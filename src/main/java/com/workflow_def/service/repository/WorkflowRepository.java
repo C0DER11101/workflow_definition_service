@@ -1,5 +1,6 @@
 package com.workflow_def.service.repository;
 
+import com.workflow_def.service.dto.WorkflowDTO;
 import com.workflow_def.service.model.WorkflowModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
