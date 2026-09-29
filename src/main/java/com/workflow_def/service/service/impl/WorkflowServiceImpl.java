@@ -21,37 +21,49 @@ public class WorkflowServiceImpl implements WorkflowService {
 
 
         AppResponseDTO appDto = null;
+        WorkflowModel newModel = null;
 
         try {
 
-            WorkflowModel model = workflowRepository.findWorkflowByWorkflowCodeAndTenantId(workflowDTO.getWorkflowCode(), workflowDTO.getTenantId());
-            WorkflowModel model1 = null;
+            List<WorkflowModel> models = workflowRepository.findWorkflowByWorkflowCodeAndTenantId(workflowDTO.getWorkflowCode(), workflowDTO.getTenantId());
+            WorkflowModel draftModel = null;
 
-            if(model.getStatusFlag().equals("DRAFT")) {
-
-                model.setEntityName(workflowDTO.getEntityName());
-                model.setUniqueField(workflowDTO.getUniqueField());
-                model.setBpmnXML(workflowDTO.getBpmnXML());
-
-                workflowRepository.save(model);
-
-            } else {
-                model1 = new WorkflowModel();
-                model1.setWorkflowName("DEMO");
-                model1.setBpmnXML(workflowDTO.getBpmnXML());
-                model1.setUniqueField(workflowDTO.getUniqueField());
-                model1.setWorkflowTypeCode(workflowDTO.getWorkflowTypeCode());
-                model1.setWorkflowDescription(workflowDTO.getWorkflowDescription());
-                model1.setWorkflowCode(workflowDTO.getWorkflowCode());
-                model1.setTenantId(workflowDTO.getTenantId());
-                model1.setEntityName(workflowDTO.getEntityName());
-                model1.setStatusFlag("DRAFT");
-                model1.setWorkflowVersion(0);
-                model1.setWorkflowId(workflowDTO.getWorkflowCode() + "_" + 0);
-                workflowRepository.save(model1);
+            for(WorkflowModel model : models) {
+                if(model.getStatusFlag().equals("DRAFT")) {
+                    draftModel = model;
+                    break;
+                }
             }
 
-            appDto = new AppResponseDTO("SUCCESS", "200", model1, null);
+            if(draftModel != null && draftModel.getStatusFlag().equals("DRAFT")) {
+
+
+                draftModel.setEntityName(workflowDTO.getEntityName());
+                draftModel.setUniqueField(workflowDTO.getUniqueField());
+                draftModel.setBpmnXML(workflowDTO.getBpmnXML());
+
+                workflowRepository.save(draftModel);
+
+            } else {
+
+                newModel = new WorkflowModel();
+
+                newModel.setWorkflowName("DEMO");
+                newModel.setBpmnXML(workflowDTO.getBpmnXML());
+                newModel.setUniqueField(workflowDTO.getUniqueField());
+                newModel.setWorkflowTypeCode(workflowDTO.getWorkflowTypeCode());
+                newModel.setWorkflowDescription(workflowDTO.getWorkflowDescription());
+                newModel.setWorkflowCode(workflowDTO.getWorkflowCode());
+                newModel.setTenantId(workflowDTO.getTenantId());
+                newModel.setEntityName(workflowDTO.getEntityName());
+                newModel.setStatusFlag("DRAFT");
+                newModel.setWorkflowVersion(0);
+                newModel.setWorkflowId(workflowDTO.getWorkflowCode() + "_" + 0);
+                workflowRepository.save(newModel);
+
+            }
+
+            appDto = new AppResponseDTO("SUCCESS", "200", newModel == null ? draftModel : newModel, null);
 
         } catch(Exception e) {
 
@@ -69,7 +81,6 @@ public class WorkflowServiceImpl implements WorkflowService {
         AppResponseDTO appDto = null;
 
         WorkflowModel model = null;
-        WorkflowModel model1 = null;
 
         try {
 
@@ -116,7 +127,7 @@ public class WorkflowServiceImpl implements WorkflowService {
 
             }
 
-            appDto = new AppResponseDTO("SUCCESS", "200", model1, null);
+            appDto = new AppResponseDTO("SUCCESS", "200", model, null);
 
         } catch(Exception e) {
 

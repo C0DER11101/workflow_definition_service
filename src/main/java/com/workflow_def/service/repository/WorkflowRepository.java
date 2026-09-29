@@ -9,7 +9,7 @@ import java.util.List;
 public interface WorkflowRepository extends JpaRepository<WorkflowModel, Integer> {
 
     @Query(value = "from WorkflowModel where workflowCode=:wfCode and tenantId=:tenantId")
-    WorkflowModel findWorkflowByWorkflowCodeAndTenantId(String wfCode, String tenantId);
+    List<WorkflowModel> findWorkflowByWorkflowCodeAndTenantId(String wfCode, String tenantId);
 
     @Query(value = "from WorkflowModel where workflowCode=:wfCode and workflowId=:wfId")
     WorkflowModel findWorkflowByWorkflowCodeAndWorkflowId(String wfCode, String wfId);
