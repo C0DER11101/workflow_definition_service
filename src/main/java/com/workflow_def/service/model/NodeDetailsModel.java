@@ -1,10 +1,9 @@
 package com.workflow_def.service.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigInteger;
 import java.util.Date;
@@ -17,8 +16,9 @@ import java.util.Map;
 public class NodeDetailsModel {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "alt_key")
-    private BigInteger altKey;
+    private int altKey;
 
     @Column(name = "node_id")
     private String nodeId;
@@ -30,13 +30,16 @@ public class NodeDetailsModel {
     private String workflowId;
 
     @Column(name = "incoming_nodes")
+    @JdbcTypeCode(SqlTypes.JSON)
     private List<String> incomingNodes;
 
     @Column(name = "outgoing_nodes")
+    @JdbcTypeCode(SqlTypes.JSON)
     private List<String> outgoingNodes;
 
     @Column(name = "node_props")
-    private Map<String, String> nodeProperties;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, Object> nodeProperties;
 
     @Column(name = "created_date")
     private Date createdDate;

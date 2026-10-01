@@ -139,4 +139,9 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     }
 
+    @Override
+    public String processGetBpmnXML(int id) {
+        return workflowRepository.findBpmnXMLById(id);
+    }
+
 }

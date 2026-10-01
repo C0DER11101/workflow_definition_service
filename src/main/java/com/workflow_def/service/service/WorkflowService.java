@@ -7,5 +7,6 @@ public interface WorkflowService {
 
     AppResponseDTO processUpdateData(WorkflowDTO workflowDTO);
     AppResponseDTO processActivate(String wfCode, String wfId);
+    String processGetBpmnXML(int id);
 
 }

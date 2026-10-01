@@ -20,4 +20,7 @@ public interface WorkflowRepository extends JpaRepository<WorkflowModel, Integer
     @Query(value = "select max(workflowVersion) from WorkflowModel where workflowCode=:wfCode")
     int findMaximumWorkflowVersionByWorkflowCode(String wfCode);
 
+    @Query(value = "select bpmnXML from WorkflowModel where id=:id")
+    String findBpmnXMLById(int id);
+
 }
