@@ -127,6 +127,14 @@ public class WorkflowServiceImpl implements WorkflowService {
 
             }
 
+            // create the node for this model
+            // first check if node exists for this model
+            String modelCode = workflowRepository.findNodeByWorkflowId(wfId);
+
+            if(modelCode == null) {
+                // add the node into the table
+            }
+
             appDto = new AppResponseDTO("SUCCESS", "200", model, null);
 
         } catch(Exception e) {

@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface WorkflowRepository extends JpaRepository<WorkflowModel, Integer> {
 
+    /* ============================= For WorkflowModel ============================= */
     @Query(value = "from WorkflowModel where workflowCode=:wfCode and tenantId=:tenantId")
     List<WorkflowModel> findWorkflowByWorkflowCodeAndTenantId(String wfCode, String tenantId);
 
@@ -22,5 +23,14 @@ public interface WorkflowRepository extends JpaRepository<WorkflowModel, Integer
 
     @Query(value = "select bpmnXML from WorkflowModel where id=:id")
     String findBpmnXMLById(int id);
+    /* ============================= END ============================= */
+
+
+
+
+    /* ============================= For Node Model ============================= */
+    @Query(value = "select WorkflowModel.workflowCode from NodeDetailsModel, WorkflowModel where NodeDetailsModel.workflowId=:wfId", nativeQuery = true)
+    String findNodeByWorkflowId(String wfId);
+    /* ============================= END ============================= */
 
 }
