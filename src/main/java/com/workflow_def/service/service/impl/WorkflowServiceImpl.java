@@ -181,9 +181,6 @@ public class WorkflowServiceImpl implements WorkflowService {
                             .map(node -> {node.setWorkflowId(id); return node;})
                             .forEach(node -> nodeRepository.save(node));
 
-                } else {
-                    // do something
-                    ;
                 }
             }
 
