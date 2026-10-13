@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -28,6 +29,7 @@ public class WorkflowServiceImpl implements WorkflowService {
             List<WorkflowModel> models = workflowRepository.findWorkflowByWorkflowCodeAndTenantId(workflowDTO.getWorkflowCode(), workflowDTO.getTenantId());
             WorkflowModel draftModel = null;
 
+            // check if there is any workflow with status 'DRAFT' for the given workflow code and tenant id
             for(WorkflowModel model : models) {
                 if(model.getStatusFlag().equals("DRAFT")) {
                     draftModel = model;
@@ -35,9 +37,10 @@ public class WorkflowServiceImpl implements WorkflowService {
                 }
             }
 
+            // if a workflow exists for the given parameters
             if(draftModel != null && draftModel.getStatusFlag().equals("DRAFT")) {
 
-
+                // then set the entity name, unique field and bpmn xml fields
                 draftModel.setEntityName(workflowDTO.getEntityName());
                 draftModel.setUniqueField(workflowDTO.getUniqueField());
                 draftModel.setBpmnXML(workflowDTO.getBpmnXML());
@@ -46,6 +49,7 @@ public class WorkflowServiceImpl implements WorkflowService {
 
             } else {
 
+                // if the workflow doesn't exist, then create a new workflow which will be in 'DRAFT' state
                 newModel = new WorkflowModel();
 
                 newModel.setWorkflowName("DEMO");
@@ -75,6 +79,7 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     }
 
+    /** Activate a workflow based on the given workflow code and workflow id */
     @Override
     public AppResponseDTO processActivate(String wfCode, String wfId) {
 
@@ -84,12 +89,16 @@ public class WorkflowServiceImpl implements WorkflowService {
 
         try {
 
+            // retrieve the target workflow
             model = workflowRepository.findWorkflowByWorkflowCodeAndWorkflowId(wfCode, wfId);
 
+            // there can be multiple workflows with the same workflow code
             List<WorkflowModel> modelList = workflowRepository.findWorkflowByWorkflowCode(wfCode);
 
+            // only one of the type of workflows can be activated: ones that are 'DRAFT'  or ones that are 'INACTIVE'
             if(model.getStatusFlag().equals("DRAFT")) {
 
+                // before activating the target workflow, it's important that we de-activate any other workflows (with that workflow code)
                 for (WorkflowModel m : modelList) {
 
                     if (m.getStatusFlag().equals("ACTIVE")) {
@@ -101,10 +110,11 @@ public class WorkflowServiceImpl implements WorkflowService {
                     }
                 }
 
+                // retrieving the maximum version among these workflows
                 int maxVersion = workflowRepository.findMaximumWorkflowVersionByWorkflowCode(wfCode);
 
                 model.setStatusFlag("ACTIVE");
-                model.setWorkflowVersion(maxVersion + 1);
+                model.setWorkflowVersion(maxVersion + 1); // the newly activated workflow has a version one more than the maximum version
                 model.setWorkflowId(model.getWorkflowCode() + "_" + model.getWorkflowVersion());
 
                 workflowRepository.save(model);
@@ -127,12 +137,26 @@ public class WorkflowServiceImpl implements WorkflowService {
 
             }
 
+
+            // ========================== Node creation phase ==========================
             // create the node for this model
             // first check if node exists for this model
-            String modelCode = workflowRepository.findNodeByWorkflowId(wfId);
+            List<String> workFlowIds = workflowRepository.findAllNodes();
 
-            if(modelCode == null) {
+            if(workFlowIds == null) {
                 // add the node into the table
+            } else {
+
+                // filtering out the node of the current workflow code
+                List<String> nodesOfThisWorkflowCode =
+                        workFlowIds.stream()
+                                .filter(id -> id.equals(wfCode.split("_")[0]))
+                                .collect(Collectors.toList());
+                if(nodesOfThisWorkflowCode == null) {
+                    // do something
+                } else {
+                    // do something
+                }
             }
 
             appDto = new AppResponseDTO("SUCCESS", "200", model, null);

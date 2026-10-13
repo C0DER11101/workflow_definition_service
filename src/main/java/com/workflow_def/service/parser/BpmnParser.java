@@ -8,15 +8,18 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.ArrayList;
 
 @Service
 public class BpmnParser extends DefaultHandler {
 
     private List<NodeDetailsModel> nodes;
+    private Map<String, Object> nodeProps;
     private NodeDetailsModel node;
     private StringBuilder data;
-    private String prevNode;
+    private String nodeName;
 
     private boolean outgoing;
     private List<String> outgoingNodes;
@@ -33,20 +36,39 @@ public class BpmnParser extends DefaultHandler {
 
         if(qName.equalsIgnoreCase("bpmn:startevent")) {
 
-            // create a new node
+            node = new NodeDetailsModel();
+            node.setNodeId(attributes.getValue("id"));
+            node.setNodeType("start event");
+            nodeName = attributes.getValue("name");
+
+            if(nodeProps == null)
+                nodeProps = new HashMap<>();
+
+            nodeProps.put(node.getNodeId(), nodeName);
+
+        } else if(qName.contains("intermediate")) {
 
             node = new NodeDetailsModel();
             node.setNodeId(attributes.getValue("id"));
+            node.setNodeType("intermediate event");
+            nodeName = attributes.getValue("name");
 
+            if(nodeProps == null)
+                nodeProps = new HashMap<>();
 
-            if(nodes == null)
-                nodes = new ArrayList<>();
+            nodeProps.put(node.getNodeId(), nodeName);
 
-            // set the fields of this node
+        } else if(qName.equalsIgnoreCase("bpmn:endevent")) {
 
+            node = new NodeDetailsModel();
+            node.setNodeId(attributes.getValue("id"));
+            node.setNodeType("end event");
+            nodeName = attributes.getValue("name");
 
+            if(nodeProps == null)
+                nodeProps = new HashMap<>();
 
-            prevNode = qName;
+            nodeProps.put(node.getNodeId(), nodeName);
 
         } else if(qName.equalsIgnoreCase("bpmn:outgoing")) {
 
@@ -59,11 +81,45 @@ public class BpmnParser extends DefaultHandler {
         }
 
         data = new StringBuilder();
-
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
+
+        if(qName.equalsIgnoreCase("bpmn:startevent")) { // </bpmn:startEvent>
+
+            node.setOutgoingNodes(outgoingNodes);
+            node.setNodeProperties(nodeProps);
+            nodes.add(node);
+            outgoingNodes = null;
+            nodeProps = null;
+
+            return;
+
+        } else if(qName.contains("intermediate")) { // </bpmn:intermediateThrowEvent> for example
+
+            node.setOutgoingNodes(outgoingNodes);
+            node.setIncomingNodes(incomingNodes);
+            node.setNodeProperties(nodeProps);
+            nodes.add(node);
+            outgoingNodes = null;
+            incomingNodes = null;
+            nodeProps = null;
+
+            return;
+
+        } else if(qName.equalsIgnoreCase("bpmn:endevent")) { // </bpmn:endEvent>
+
+            node.setIncomingNodes(incomingNodes);
+            node.setNodeProperties(nodeProps);
+            nodes.add(node);
+            incomingNodes = null;
+            nodeProps = null;
+
+            return;
+
+        }
+
 
         if(outgoing) {
 
@@ -71,25 +127,27 @@ public class BpmnParser extends DefaultHandler {
                 outgoingNodes = new ArrayList<>();
 
             outgoingNodes.add(data.toString());
+
             outgoing = false;
 
-        } else if(incoming) {
+        } else if (incoming) {
 
             if(incomingNodes == null)
                 incomingNodes = new ArrayList<>();
 
             incomingNodes.add(data.toString());
+
             incoming = false;
 
         }
 
-        if(prevNode.equalsIgnoreCase("bpmn:startevent") || prevNode.substring(0, 17).equalsIgnoreCase("bpmn:intermediate") || prevNode.equalsIgnoreCase("bpmn:endevent"))
-            nodes.add(node);
     }
 
     @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
-        data.append(new String(ch, start, length));
+    public void characters(char[] ch, int start, int end) throws SAXException {
+
+        data.append(new String(ch, start, end));
+
     }
 
 }
