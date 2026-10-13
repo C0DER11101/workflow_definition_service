@@ -25,9 +25,5 @@ public interface WorkflowRepository extends JpaRepository<WorkflowModel, Integer
     String findBpmnXMLById(int id);
     /* ============================= END ============================= */
 
-    /* ============================= For NodeDetailsModel ============================= */
-    @Query(value = "select workflowId from NodeDetailsModel")
-    List<String> findAllNodes();
-    /* ============================= END ============================= */
 
 }

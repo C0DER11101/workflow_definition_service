@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class WorkflowController {
 
-    WorkflowService workflowService;
+    private WorkflowService workflowService;
 
     @PostMapping(value = "/activate/{wfCode}/{wfId}")
     public @ResponseBody AppResponseDTO activate(@PathVariable("wfCode") String wfCode, @PathVariable("wfId") String wfId) {

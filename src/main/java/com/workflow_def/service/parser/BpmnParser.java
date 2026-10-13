@@ -41,6 +41,9 @@ public class BpmnParser extends DefaultHandler {
             node.setNodeType("start event");
             nodeName = attributes.getValue("name");
 
+            if(nodes == null)
+                nodes = new ArrayList<>();
+
             if(nodeProps == null)
                 nodeProps = new HashMap<>();
 

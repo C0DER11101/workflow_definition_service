@@ -2,12 +2,18 @@ package com.workflow_def.service.service.impl;
 
 import com.workflow_def.service.dto.AppResponseDTO;
 import com.workflow_def.service.dto.WorkflowDTO;
+import com.workflow_def.service.model.NodeDetailsModel;
 import com.workflow_def.service.model.WorkflowModel;
+import com.workflow_def.service.parser.BpmnParser;
+import com.workflow_def.service.repository.NodeRepository;
 import com.workflow_def.service.repository.WorkflowRepository;
 import com.workflow_def.service.service.WorkflowService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.xml.parsers.SAXParser;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,7 +21,10 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class WorkflowServiceImpl implements WorkflowService {
 
-    WorkflowRepository workflowRepository;
+    private WorkflowRepository workflowRepository;
+    private NodeRepository nodeRepository;
+    private SAXParser xmlParser;
+    private BpmnParser bpmnParser;
 
     @Override
     public AppResponseDTO processUpdateData(WorkflowDTO workflowDTO) {
@@ -139,23 +148,42 @@ public class WorkflowServiceImpl implements WorkflowService {
 
 
             // ========================== Node creation phase ==========================
-            // create the node for this model
-            // first check if node exists for this model
-            List<String> workFlowIds = workflowRepository.findAllNodes();
 
-            if(workFlowIds == null) {
-                // add the node into the table
+            // get the list of all the workflow IDs
+            List<String> workFlowIds = nodeRepository.findAllNodes();
+            //System.out.println("IDs: " + workFlowIds);
+
+            String id = model.getWorkflowId();
+            // no nodes exist
+            if(workFlowIds == null || workFlowIds.isEmpty()) {
+                // add a new node into the table
+                xmlParser.parse(new ByteArrayInputStream(model.getBpmnXML().getBytes(StandardCharsets.UTF_8)), bpmnParser); // [Credit]: https://stackoverflow.com/a/782183
+                List<NodeDetailsModel> nodes = bpmnParser.getNodeList();
+
+
+                nodes.stream()
+                        .map(node -> { node.setWorkflowId(id); return node;})
+                        .forEach(node -> nodeRepository.save(node));
+
             } else {
 
-                // filtering out the node of the current workflow code
+                // checking if a node exists for the given workflow code
                 List<String> nodesOfThisWorkflowCode =
                         workFlowIds.stream()
-                                .filter(id -> id.equals(wfCode.split("_")[0]))
+                                .filter(code -> code.equals(wfCode.split("_")[0]))
                                 .collect(Collectors.toList());
-                if(nodesOfThisWorkflowCode == null) {
-                    // do something
+                if(nodesOfThisWorkflowCode == null) { // if no node for the given workflow code doesn't exist then
+                    // add a new node for this workflow code
+                    xmlParser.parse(new ByteArrayInputStream(model.getBpmnXML().getBytes(StandardCharsets.UTF_8)), bpmnParser);
+                    List<NodeDetailsModel> nodes = bpmnParser.getNodeList();
+
+                    nodes.stream()
+                            .map(node -> {node.setWorkflowId(id); return node;})
+                            .forEach(node -> nodeRepository.save(node));
+
                 } else {
                     // do something
+                    ;
                 }
             }
 
