@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("/workflow-def")
 public class WorkflowController {
 
     private WorkflowService workflowService;
