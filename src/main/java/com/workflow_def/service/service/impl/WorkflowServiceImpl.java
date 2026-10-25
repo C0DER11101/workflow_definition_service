@@ -173,7 +173,7 @@ public class WorkflowServiceImpl implements WorkflowService {
                                 .filter(_id -> _id.split("_")[0].equals(wfCode))
                                 .collect(Collectors.toList());
 
-                if(nodesOfThisWorkflowCode == null || nodesOfThisWorkflowCode.isEmpty()) { // if no node for the given workflow code doesn't exist then
+                if(nodesOfThisWorkflowCode.isEmpty()) { // if no node for the given workflow code doesn't exist then
                     // add a new node for this workflow code
                     xmlParser.parse(new ByteArrayInputStream(model.getBpmnXML().getBytes(StandardCharsets.UTF_8)), bpmnParser);
                     List<NodeDetailsModel> nodes = bpmnParser.getNodeList();
