@@ -10,6 +10,7 @@ import com.workflow_def.service.repository.WorkflowRepository;
 import com.workflow_def.service.service.WorkflowService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.xml.parsers.SAXParser;
 import java.io.ByteArrayInputStream;
@@ -25,6 +26,7 @@ public class WorkflowServiceImpl implements WorkflowService {
     private NodeRepository nodeRepository;
     private SAXParser xmlParser;
     private BpmnParser bpmnParser;
+    private WebClient webClient;
 
     @Override
     public AppResponseDTO processUpdateData(WorkflowDTO workflowDTO) {
